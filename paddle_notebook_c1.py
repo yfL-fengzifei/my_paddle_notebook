@@ -1,4 +1,6 @@
 #Variable and tensor and LoDTensor
+#operator and program and executor
+#动态图dygraph and 编程细节
 
 #variable
 """
@@ -35,6 +37,9 @@ print(data)
 #tensor
 """
 和其他框架的tensor一样
+
+fluid.data用来接收输入数据，需要提供tensor的形状信息
+fulid.data(name='x',shape=[3,None],dtype='int64')
 """
 #注
 """
@@ -54,3 +59,44 @@ print(w)
 data=fluid.layers.fill_constant(shape=[1],value=0,dtype='int64')
 print(data)
 
+
+#operator and program and executor
+"""
+见文档
+
+所有对数据的操作都由operator表示
+operator被封装入paddle.fluid.layers,paddle.fluid.nets等
+"""
+
+
+#动态图dygraph and 编程细节
+import paddle.fluid
+
+#数据读取
+"""
+reader函数：从文件、网络、生成器等读取数据并生成数据项
+reader creater 返回reader函数的函数
+reader decorator 函数，接收一个或多个reader，并返回一个reader
+batch reder 函数，从reader、网络、文件、生成器等从读取数据，并生成一批数据项
+"""
+
+#损失函数
+"""
+paddle提供的算子一般是针对一条样本的，当输入一个batch的数据时，损失算子的输出有多个值，每个值对应一个样本的损失，所以通常在损失算子后面使用mean算子，对损失进行归约
+"""
+
+#模型参数
+"""
+variable中的presistable=True表示长期变量
+长期变量：在整个训练过程中持续存在，不会因为一个迭代的结束而销毁结束。所有的模型参数都是长期变量，并未所有的长期变量都是模型参数
+"""
+
+#模型保存
+"""
+执行预测：仅保存模型参数就行
+恢复训练：保存一个checkpoint，需要将各种长期变量保存下来，需要记录当前的epoch和step的id
+
+推荐使用
+save_inderence_model：会根据用户配置的feeded_var_names和target_vars进行网络裁剪，保存下裁剪后的网络结构的__model__以及裁剪后网络中的长期变量；即会保存网络参数以裁剪后的模型，如果后续要做预测相关的工作，选择此进行变量和网络的保存
+save_parmas不会保存网络结构，会保存网络中的全部长期变量到指定位置；即保存的网络参数是最全面的，如果是增量驯良或恢复训练，选择此
+"""
