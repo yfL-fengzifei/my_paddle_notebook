@@ -65,7 +65,10 @@ def data_generator():
         #将数据处理成模型期望的格式
 
         img=np.reshape(train_imgs[i],[1,IMG_ROWS,IMG_COLS]).astype('float32') #(c,h,w)=(1,28,28)
-        label=np.reshape(train_lables[i],[1]).astype('float32') #(1,1)
+        #对应于均方差损失函数标签格式
+        # label=np.reshape(train_lables[i],[1]).astype('float32') #(1,1)
+        #对应于交叉熵损失函数标签格式
+        label=np.reshape(train_lables[i],[1]).astype('int64') #(1,1)
 
         img_list.append(img) #list(ndarray) (n,c,h,w)=(batch_size,1,28,28)
         labels_list.append(label) #list(ndarray) (n,1,1)
@@ -225,6 +228,7 @@ Linear(input_dim, output_dim, param_attr=None, bias_attr=None, act=None, dtype='
 **(见参考)**
 Linear层只能接受一个tensor的输入，输出[N,*,outputdim],*为附加尺寸 **(没懂)**
 """
+#=========================================================================================均方差
 class MNIST(flulid.dygraph.Layer):
     def __init__(self):
         super(MNIST,self).__init__()
@@ -234,7 +238,11 @@ class MNIST(flulid.dygraph.Layer):
         self.pool1=nn.Pool2D(pool_size=2,pool_stride=2,pool_type='max')
         self.conv2=nn.Conv2D(num_channels=20,num_filters=20,filter_size=5,stride=1,padding=2,act='relu')
         self.pool2=nn.Pool2D(pool_size=2,pool_stride=2,pool_type='max')
-        self.fc=nn.Linear(input_dim=980,output_dim=1,act=None)
+        #对应于均方差损失函数
+        # self.fc=nn.Linear(input_dim=980,output_dim=1,act=None)
+        #对应于交叉熵损失函数
+        self.fc=nn.Linear(input_dim=980,output_dim=10,act='softmax')
+
 
     def forward(self,inputs):
         x=self.conv1(inputs)
@@ -262,7 +270,10 @@ with flulid.dygraph.guard():
             label=flulid.dygraph.to_variable(label_data)
 
             predict=model(img) #batch
-            loss=flulid.layers.square_error_cost(predict,label) #因为只能计算单个样本
+            #对应于均方差损失函数
+            # loss=flulid.layers.square_error_cost(predict,label) #因为只能计算单个样本
+            #对应于交叉熵损失函数
+            loss=flulid.layers.cross_entropy(predict,label) #因为只能计算单个样本
             avg_loss=flulid.layers.mean(loss) #对batch进行平均
 
             if batch_id%200==0:
@@ -271,6 +282,25 @@ with flulid.dygraph.guard():
             avg_loss.backward()
             optimizer.minimize(avg_loss)
             model.clear_gradients()
+
+#=========================================================================================交叉熵,(软硬标签的概念还需要理解)(硬标签可以理解为one-hot)
+#修改标签
+# label=np.reshape(train_lables[i],[1]).astype('int64') #(1,1)
+#修改网络结构
+# self.fc=nn.Linear(input_dim=980,output_dim=10,act='softmax')
+#修改损失函数
+# loss=flulid.layers.cross_entropy(predict,label) #因为只能计算单个样本
+
+#=========================================================================================模型预测
+#=========================================================================================
+#最终输出为最大的那个值
+results=model(img)
+lab=np.argsort(results.numpy()) #返回的升序的索引
+
+#=========================================================================================优化器
+#=========================================================================================
+#需要研究理论
+
 
 pass
 
