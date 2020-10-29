@@ -119,7 +119,8 @@ net.conv1.parameters()/net.conv1.named_parameters() -> net.conv1.weight
                                                     
 net.pool.paramters()
 
-
+注：
+查看数据用.numpy()
 
 """
 """
