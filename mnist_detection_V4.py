@@ -182,7 +182,7 @@ with flulid.dygraph.guard(place):
             avg_loss=flulid.layers.mean(loss) #对batch进行平均
 
             if batch_id%200==0:
-                print('epoch:{},batch:{},loss is:{},acc is {}'.format(epoch_id,batch_id,avg_loss.numpy(),acc.numpy()))
+                    print('epoch:{},batch:{},loss is:{},acc is {}'.format(epoch_id,batch_id,avg_loss.numpy(),acc.numpy()))
 
             avg_loss.backward()
             optimizer.minimize(avg_loss)

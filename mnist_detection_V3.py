@@ -25,7 +25,7 @@ support_gpu=flulid.is_compiled_with_cuda()
 print(support_gpu)
 
 #加载数据
-PATH='../mnist.json.gz'
+PATH='../datasets/mnist/mnist.json.gz'
 data_json=gzip.open(PATH)
 data=json.load(data_json)
 
@@ -101,11 +101,11 @@ class MNIST(flulid.dygraph.Layer):
         x=flulid.layers.reshape(x,[x.shape[0],-1]) #x为[N,C,H,W]，转换维度，[N,*]
         x=self.fc(x)
 
-        # if label is not None:
-        #     acc=flulid.layers.accuracy(input=x,label=label)
-        #     return x,acc
-        # else:
-        return x
+        if label is not None:
+            acc=flulid.layers.accuracy(input=x,label=label)
+            return x,acc
+        else:
+            return x
 
 #gpu训练
 use_gpu=True
